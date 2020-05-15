@@ -1,5 +1,8 @@
 package com.blacksun.auth.entity
 
+
+import io.micronaut.context.annotation.Primary
+import io.micronaut.data.annotation.DateCreated
 import java.sql.Timestamp
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -8,8 +11,9 @@ import javax.validation.constraints.NotNull
 @Table(name = "account")
 data class Account(
         @Id
+        @Primary
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long,
+        var id: Long?,
         @NotNull
         val userName: String,
         @NotNull
@@ -17,5 +21,7 @@ data class Account(
         @NotNull
         val password: String,
         @NotNull
-        val creation: Timestamp,
-        val lastLogin: Timestamp)
+        @DateCreated
+        var creationTs: Timestamp?,
+        var lastLogin: Timestamp?,
+        var salt: String?)

@@ -2,30 +2,37 @@ package com.blacksun.auth.service
 
 import com.blacksun.auth.entity.Account
 import com.blacksun.auth.repository.IAccountRepository
+import com.blacksun.auth.web.dto.AccountRequest
 import java.util.*
-import javax.inject.Inject
 
-class AccountService()
+
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class AccountService(
+    @Inject val repository: IAccountRepository
+)
 {
 
-    @Inject
-    private lateinit var repository: IAccountRepository;
-
-    fun create(account: Account): Account
+    fun create(account: AccountRequest): Account
     {
-        return repository.save(account);
+
+        return repository.save(Account(null, account.userName, account.email, account.password, null, null, null))
     }
 
     fun read(id: Long): Optional<Account>
     {
-        return repository.findById(id);
+        return repository.findById(id)
     }
 
-    fun update(account: Account) : Account{
-        return repository.update(account);
+    fun update(account: Account): Account
+    {
+        return repository.update(account)
     }
 
-    fun delete(account: Account) {
-        return repository.delete(account);
+    fun delete(account: Account)
+    {
+        return repository.delete(account)
     }
 }

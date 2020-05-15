@@ -7,5 +7,5 @@ import java.util.*
 
 @Repository
 interface IAccountRepository : CrudRepository<Account, Long>{
-    fun findByUsername(usename : String) : Optional<Account>
+    fun findByUserName(userName : String) : Optional<Account>
 }

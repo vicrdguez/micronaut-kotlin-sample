@@ -1,6 +1,8 @@
 package com.blacksun.auth.service
 
+import com.blacksun.auth.entity.Account
 import com.blacksun.auth.repository.IAccountRepository
+import com.blacksun.auth.utils.logger
 import io.micronaut.security.authentication.*
 import io.reactivex.Flowable
 import org.reactivestreams.Publisher
@@ -14,14 +16,14 @@ import javax.inject.Singleton
 class AuthenticatorService : AuthenticationProvider
 {
     @Inject
-    private lateinit var repository: IAccountRepository;
+    private lateinit var repository: IAccountRepository
 
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse>
     {
-        return repository.findByUsername(authenticationRequest?.identity.toString())
+        return repository.findByUserName(authenticationRequest?.identity.toString())
             .filter { acc -> acc.password == authenticationRequest?.secret }
             .map { acc -> UserDetails(acc.userName, Collections.emptyList()) as AuthenticationResponse }
-            .map{ acc -> Flowable.just(acc)}
-            .orElse(Flowable.just(AuthenticationFailed()));
+            .map { acc -> Flowable.just(acc) }
+            .orElse(Flowable.just(AuthenticationFailed()))
     }
 }

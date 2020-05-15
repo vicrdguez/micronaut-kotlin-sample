@@ -19,12 +19,12 @@ micronaut:
               secret: 'I53gfSOS9BTtoFDWxwSOMMk3PI7hLMJc1Gw2LvuUBxxgrMXDXdKk3gjP2tJ7Bc2'
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/blacksun;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/blacksun
+    schema: auth
+    driverClassName: org.postgresql.Driver
     username: blacksun
     password: 'blacksun'
-    schema-generate: CREATE_DROP
-    dialect: H2
+#    schema-generate: CREATE_DROP
 jpa.default:
   packages-to-scan:
     - "com.blacksun.auth.entity"
