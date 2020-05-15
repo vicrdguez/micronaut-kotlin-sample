@@ -1,0 +1,18 @@
+---
+version: '2'
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: blacksun
+      POSTGRES_PASSWORD: blacksun
+      PGDATA: /data/postgres
+    volumes:
+        - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres:
