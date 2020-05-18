@@ -20,13 +20,13 @@ When you document your architecture you can use different `diagrams` blocks as
 for example `plantuml`
 
 [plantuml]
-----
+....
 Alice -> Bob: Authentication Request
 Bob --> Alice: Authentication Response
 
 Alice -> Bob: Another authentication Request
 Alice <-- Bob: another authentication Response
-----
+....
 
 == Implementation
 
