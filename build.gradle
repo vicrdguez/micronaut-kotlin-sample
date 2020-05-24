@@ -49,9 +49,7 @@ dependencies {
     testImplementation(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
     testImplementation("io.micronaut.test:micronaut-test-kotlintest")
     testImplementation("io.mockk:mockk:1.9.3")
-    //TODO (roll back to kotlintest 3.* until micronaut adds the support for 4.* (Kotest) in the next 1.2.0 release
-    // currently in pre-release)
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.0.5")
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
 }
 
 test.classpath += configurations.developmentOnly

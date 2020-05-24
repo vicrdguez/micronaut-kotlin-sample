@@ -24,4 +24,6 @@ data class Account(
         @DateCreated
         var creationTs: Timestamp?,
         var lastLogin: Timestamp?,
-        var salt: String?)
+        var salt: String)
+{
+}

@@ -1,8 +1,9 @@
 micronaut:
+  http.client.exception-on-error-status: false
   application:
     name: api
   server:
-    port: 8081
+#    port: 8081
   security:
     enabled: true
     endpoints:
@@ -17,9 +18,10 @@ micronaut:
           secret:
             generator:
               secret: 'I53gfSOS9BTtoFDWxwSOMMk3PI7hLMJc1Gw2LvuUBxxgrMXDXdKk3gjP2tJ7Bc2'
+              jws-algorithm: HS256
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/blacksun
+    url: jdbc:postgresql://localhost:5432/blacksundb
     schema: auth
     driverClassName: org.postgresql.Driver
     username: blacksun

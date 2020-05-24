@@ -1,6 +1,5 @@
 package com.blacksun.auth.web.controller
 
-import com.blacksun.auth.service.AccountService
 import com.blacksun.auth.service.AuthenticatorService
 import com.blacksun.auth.utils.logger
 import com.blacksun.auth.web.dto.AccountRequest
@@ -13,31 +12,41 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
-import io.reactivex.Flowable
+import org.hibernate.exception.ConstraintViolationException
 import java.lang.Exception
+import javax.persistence.PersistenceException
 
-@Secured(SecurityRule.IS_AUTHENTICATED)
+
 @Controller("/auth")
+@Secured(SecurityRule.IS_AUTHENTICATED)
 class AccountController(
-    @Inject val service: AuthenticatorService
+        @Inject val service: AuthenticatorService
 )
 {
     val logger = logger()
 
     @Post("/register")
     @Secured(SecurityRule.IS_ANONYMOUS)
-    fun createAccount(@Body account: AccountRequest): HttpResponse<AccountResponse>?
+    fun createAccount(@Body account: AccountRequest): HttpResponse<Any>?
     {
         logger.info("the received request is [{}]", account)
 
-        try
+        return try
         {
             val result = service.create(account)
-            return HttpResponse.created(AccountResponse(result.userName))
-        }
-        catch (e: Exception)
+            HttpResponse.created(AccountResponse(result.userName))
+        } catch (e: PersistenceException)
         {
-            return HttpResponse.unprocessableEntity()
+            val innerException = e.cause as ConstraintViolationException
+            return when (innerException.constraintName)
+            {
+                "account_email_key" -> HttpResponse.badRequest("The email already exists")
+                "account_username_key" -> HttpResponse.badRequest("The username already exists")
+                else -> HttpResponse.unprocessableEntity()
+            }
+        } catch (e: Exception)
+        {
+            HttpResponse.serverError(e.message)
         }
     }
 
@@ -45,7 +54,7 @@ class AccountController(
     fun getAccountName(id: Long): HttpResponse<AccountResponse>?
     {
         return service.read(id).map { t -> HttpResponse.ok(AccountResponse(t.userName)) }
-            .orElse(HttpResponse.noContent())
+                .orElse(HttpResponse.noContent())
     }
 }
 

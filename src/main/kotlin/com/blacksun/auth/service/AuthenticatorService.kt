@@ -1,15 +1,14 @@
 package com.blacksun.auth.service
 
 import com.blacksun.auth.entity.Account
+import com.blacksun.auth.enum.HashAlgorithm
 import com.blacksun.auth.repository.IAccountRepository
-import com.blacksun.auth.utils.logger
+import com.blacksun.auth.utils.PasswordEncoder
 import com.blacksun.auth.web.dto.AccountRequest
 import io.micronaut.security.authentication.*
 import io.reactivex.Flowable
 import org.reactivestreams.Publisher
-import java.nio.channels.FileLock
 import java.util.*
-import java.util.function.Predicate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,9 +28,11 @@ class AuthenticatorService(
 
     fun create(account: AccountRequest): Account
     {
-
+        val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
+        val salt: String = encoder.generateSalt()
+        val encodedPass: String = encoder.hash(account.password)
         return repository.save(
-            Account(null, account.userName, account.email, account.password, null, null, null)
+            Account(null, account.userName, account.email, encodedPass, null, null, salt)
         )
     }
 
