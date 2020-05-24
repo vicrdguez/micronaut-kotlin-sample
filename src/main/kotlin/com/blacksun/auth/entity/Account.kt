@@ -7,6 +7,13 @@ import java.sql.Timestamp
 import javax.persistence.*
 import javax.validation.constraints.NotNull
 
+/**
+ * Account entity
+ *
+ * Holds the needed data for a user account
+ *
+ * @author vicrdguez
+ */
 @Entity
 @Table(name = "account")
 data class Account(
