@@ -16,7 +16,7 @@ import org.hibernate.exception.ConstraintViolationException
 import java.lang.Exception
 import javax.persistence.PersistenceException
 
-
+//main controller
 @Controller("/auth")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class AccountController(
