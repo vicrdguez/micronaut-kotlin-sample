@@ -35,9 +35,9 @@ class AccountService(
     {
         val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
         val salt: String = encoder.generateSalt()
-        val encodedPass: String = encoder.hash(account.password)
+        val encodedPassword: String = encoder.hash(account.password)
         return repository.save(
-                Account(null, account.userName, account.email, encodedPass, null, null, salt)
+                Account(null, account.userName, account.email, encodedPassword, null, null, salt)
         )
     }
 
@@ -60,5 +60,14 @@ class AccountService(
     {
         //TODO(add condition fot exist function and call mail client when true)
         return repository.existsByEmail(email)
+    }
+
+    fun updatePassword(id: Long, password: String)
+    {
+        val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
+        val salt: String = encoder.generateSalt()
+        val encodedPassword: String = encoder.hash(password)
+
+        return repository.update(id, encodedPassword, salt)
     }
 }

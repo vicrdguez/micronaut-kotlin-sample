@@ -1,6 +1,7 @@
 package com.blacksun.auth.repository
 
 import com.blacksun.auth.entity.Account
+import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.Repository
 import io.micronaut.data.repository.CrudRepository
 import java.util.*
@@ -18,4 +19,5 @@ import java.util.*
 interface IAccountRepository : CrudRepository<Account, Long>{
     fun findByUserName(userName : String) : Optional<Account>
     fun existsByEmail(email: String): Boolean
+    fun update(@Id id: Long?, password: String, salt: String)
 }

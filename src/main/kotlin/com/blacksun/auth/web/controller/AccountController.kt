@@ -62,11 +62,18 @@ class AccountController(
                 .orElse(HttpResponse.noContent())
     }
 
-    @Post("/reset")
+    @Post("/reset/password/email")
     @Secured(SecurityRule.IS_ANONYMOUS)
-    fun createResetRequest(email: String): MutableHttpResponse<Boolean>?
+    fun createResetRequest(email: String): HttpResponse<Boolean>?
     {
         return HttpResponse.ok(service.sendPasswordResetEmail(email))
+    }
+
+    @Post("/reset/password")
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    fun resetPassword(id: Long, password :String): HttpResponse<Unit>?
+    {
+        return HttpResponse.ok(service.updatePassword(id, password))
     }
 }
 
