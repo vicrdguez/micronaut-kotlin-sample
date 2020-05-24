@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.blacksun.auth
+testFramework: kotlintest
+sourceLanguage: kotlin
+buildTool: gradle
+features: [annotation-api, app-name, asciidoctor, data, data-jpa, docker, gradle, h2, http-client, jdbc-hikari, kotlin, kotlin-application, kotlintest, logback, netty-server, readme, shade, yaml]

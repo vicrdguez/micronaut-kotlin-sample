@@ -1,0 +1,36 @@
+micronaut:
+  http.client.exception-on-error-status: false
+  application:
+    name: api
+  server:
+#    port: 8081
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+      oauth:
+        enabled: true
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: 'I53gfSOS9BTtoFDWxwSOMMk3PI7hLMJc1Gw2LvuUBxxgrMXDXdKk3gjP2tJ7Bc2'
+              jws-algorithm: HS256
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/blacksundb
+    schema: auth
+    driverClassName: org.postgresql.Driver
+    username: blacksun
+    password: 'blacksun'
+#    schema-generate: CREATE_DROP
+jpa.default:
+  packages-to-scan:
+    - "com.blacksun.auth.entity"
+  properties.hibernate:
+    hbm2ddl.auto: update
+    show_sql: true
+
