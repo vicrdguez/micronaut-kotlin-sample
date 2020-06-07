@@ -1,0 +1,27 @@
+= Black Sun Auth API
+vicrerdgz@outlook.com
+
+This API have the necessary REST method to perform authorization
+and account handling tasks for Black sun project.
+Eventualy it will be the game gateway
+
+
+== Build and run
+
+This API is dockerized so runtime installations are not needed.
+
+Go to the source folder and use the next lines in the terminal
+
+[source, console]
+----
+docker-compose up -d <1>
+docker pull vicrerdgz/blacksun:bs-auth-api_0.0.1 <2>
+docker run -p 8080:8080 -d vicrerdgz/blacksun:bs-auth-api_0.0.1 <3>
+----
+<1> Init postgres database
+<2> Pull auth-api image from Docker Hub
+<3> Run the API containter
+
+WARNING: Make sure the database `blacksundb` is created with an auth schema and the account table on it before running the API container, otherwise the API run will fail
+
+Now you can access the API using http://localhost:8080
