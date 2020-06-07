@@ -1,7 +1,7 @@
 micronaut:
   http.client.exception-on-error-status: false
   application:
-    name: api
+    name: authApi
   server:
 #    port: 8081
   security:
@@ -21,7 +21,7 @@ micronaut:
               jws-algorithm: HS256
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/blacksundb
+    url: jdbc:postgresql://host.docker.internal:5432/blacksundb
     schema: auth
     driverClassName: org.postgresql.Driver
     username: blacksun

@@ -1,8 +1,6 @@
--- auth.account definition
-
--- Drop table
-
--- DROP TABLE auth.account;
+--CREATE DATABASE blacksundb;
+--GRANT ALL PRIVILEGES ON DATABASE blacksundb TO blacksun;
+CREATE SCHEMA auth AUTHORIZATION blacksun;
 
 CREATE TABLE auth.account (
 	id serial NOT NULL,

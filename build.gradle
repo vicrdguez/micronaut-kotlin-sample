@@ -8,7 +8,7 @@ plugins {
     id "application"
 }
 
-version "0.1"
+version "1.0.0-SNAPSHOT"
 group "com.blacksun.auth"
 
 
@@ -54,7 +54,6 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "com.blacksun.auth.Application"
 
 // use JUnit 5 platform
 test {
