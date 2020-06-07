@@ -20,7 +20,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 
-const val PASS: String = "2RbgqKoczmO1sryeK1+qpnaHuP2unySCVPc18SpV/OUjCN/T7sNPumJdHR+jvkIGeLthfZzp5KwI/ynRmcjALQ=="
+const val PASS: String = "51uctSQVgFS75g3GcWe4QBby0hQ54DnX9iDMcCFCcQw+SWJHClRkjxT9TkZ3yuJxTOIXK/3lfZGKzxHsE4pCxw=="
 const val USER: String = "blacksuntest"
 
 @MicronautTest

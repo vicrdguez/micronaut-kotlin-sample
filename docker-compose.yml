@@ -7,9 +7,11 @@ services:
     environment:
       POSTGRES_USER: blacksun
       POSTGRES_PASSWORD: blacksun
+      POSTGRES_DB: blacksundb
       PGDATA: /data/postgres
     volumes:
         - postgres:/data/postgres
+        - ./sql/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
     restart: unless-stopped
