@@ -6,6 +6,7 @@ import java.security.spec.KeySpec
 import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
+import javax.inject.Singleton
 
 const val ITERATIONS: Int = 10000
 const val KEY_LENGTH: Int = 512
@@ -21,11 +22,10 @@ const val KEY_LENGTH: Int = 512
  *
  * @author vicrdguez
  */
+
 class PasswordEncoder(private val algorithm: HashAlgorithm)
 {
-    private val salt: ByteArray = ByteArray(16)
-    private val base64Encoder = Base64.getEncoder()
-
+    private var salt: ByteArray = ByteArray(16)
     /**
      * Generates a salt for hashing
      *
@@ -34,7 +34,7 @@ class PasswordEncoder(private val algorithm: HashAlgorithm)
     fun generateSalt(): String
     {
         SecureRandom().nextBytes(salt)
-        return base64Encoder.encodeToString(salt)
+        return Base64.getEncoder().encodeToString(salt)
     }
 
     /**
@@ -52,11 +52,18 @@ class PasswordEncoder(private val algorithm: HashAlgorithm)
         }
     }
 
+    fun hash(password: String, salt: String): String
+    {
+        this.salt = Base64.getDecoder().decode(salt)
+
+        return hash(password)
+    }
+
     private fun encodeWithPBKDF2(password: String): String
     {
         val spec: KeySpec = PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH)
         val factory: SecretKeyFactory = SecretKeyFactory.getInstance(algorithm.value)
 
-        return base64Encoder.encodeToString(factory.generateSecret(spec).encoded)
+        return Base64.getEncoder().encodeToString(factory.generateSecret(spec).encoded)
     }
 }

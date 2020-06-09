@@ -5,5 +5,5 @@ package com.blacksun.auth.web.dto
  *
  * @author vicrdguez
  */
-data class AccountResponse(val userName: String)
+data class AccountResponse(val id: Long?, val userName: String)
 

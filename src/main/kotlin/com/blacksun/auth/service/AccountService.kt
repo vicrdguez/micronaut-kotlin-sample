@@ -19,15 +19,25 @@ import javax.inject.Singleton
  */
 @Singleton
 class AccountService(
-        @Inject val repository: IAccountRepository
+        @Inject private val repository: IAccountRepository
 ) : AuthenticationProvider
 {
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse>
     {
         return repository.findByUserName(authenticationRequest?.identity.toString())
-                .filter { acc -> acc.password == authenticationRequest?.secret }
-                .map { acc -> UserDetails(acc.userName, Collections.emptyList()) as AuthenticationResponse }
-                .map { acc -> Flowable.just(acc) }
+                .filter()
+                {
+                    account ->
+                        val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
+                        account.password == encoder.hash(authenticationRequest?.secret.toString(), account.salt)
+                }
+                .map()
+                {
+                    account ->
+                        val authenticationResponse = UserDetails(account.userName, Collections.emptyList()) as AuthenticationResponse
+                        authenticationResponse
+                }
+                .map { account -> Flowable.just(account) }
                 .orElse(Flowable.just(AuthenticationFailed()))
     }
 
@@ -51,9 +61,9 @@ class AccountService(
         return repository.update(account)
     }
 
-    fun delete(account: Account)
+    fun delete(id: Long)
     {
-        return repository.delete(account)
+        return repository.deleteById(id)
     }
 
     fun sendPasswordResetEmail(email: String): Boolean
