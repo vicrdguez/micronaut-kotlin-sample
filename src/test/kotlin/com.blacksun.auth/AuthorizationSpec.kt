@@ -1,5 +1,6 @@
 package com.blacksun.auth
 
+import com.blacksun.auth.web.dto.AccountRequest
 import com.blacksun.auth.web.dto.AccountResponse
 import com.nimbusds.jwt.JWTParser
 import com.nimbusds.jwt.SignedJWT
@@ -9,10 +10,7 @@ import io.kotlintest.specs.BehaviorSpec
 
 import io.micronaut.context.ApplicationContext
 import io.micronaut.core.type.Argument
-import io.micronaut.http.HttpHeaders
-import io.micronaut.http.HttpRequest
-import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
+import io.micronaut.http.*
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.runtime.server.EmbeddedServer
@@ -20,26 +18,44 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 
-const val PASS: String = "51uctSQVgFS75g3GcWe4QBby0hQ54DnX9iDMcCFCcQw+SWJHClRkjxT9TkZ3yuJxTOIXK/3lfZGKzxHsE4pCxw=="
+const val PASS: String = "blacksun2143"
 const val USER: String = "blacksuntest"
+const val EMAIL: String = "blacksun@blacksun.com"
 
+@Suppress("NAME_SHADOWING")
 @MicronautTest
 class AuthorizationSpec : BehaviorSpec({
 
+    val embeddedServer: EmbeddedServer = ApplicationContext.run(EmbeddedServer::class.java)
+    val client: RxHttpClient = RxHttpClient.create(embeddedServer.url)
+    var accountId: Long? = null
+    var accessToken: String? = null
+    Given("A user trying to register with a non existing email and username")
+    {
+        When("The user request the register")
+        {
+            val request = HttpRequest.POST("/auth/register", AccountRequest(USER, EMAIL, PASS))
+            val response = client.toBlocking().exchange(request, AccountResponse::class.java)
+            accountId = response.body()?.id
+
+            Then("The register should succeed")
+            {
+                response.status shouldBe HttpStatus.CREATED
+                response.body()?.userName shouldBe USER
+            }
+        }
+
+    }
     Given("A REST client trying access the API")
     {
-
-        val embeddedServer: EmbeddedServer = ApplicationContext.run(EmbeddedServer::class.java)
-        val client: RxHttpClient = RxHttpClient.create(embeddedServer.url)
 
         When("The client tries to reach the get account endpoint without login")
         {
             var responseStatus: HttpStatus? = null
             try
             {
-                client.toBlocking().exchange(HttpRequest.GET<Any>("/auth/4"), Argument.OBJECT_ARGUMENT)
-            }
-            catch (e: HttpClientResponseException)
+                client.toBlocking().exchange(HttpRequest.GET<Any>("/auth/$accountId"), Argument.OBJECT_ARGUMENT)
+            } catch (e: HttpClientResponseException)
             {
                 responseStatus = e.status
             }
@@ -69,10 +85,10 @@ class AuthorizationSpec : BehaviorSpec({
                 (JWTParser.parse(bearerResponse.body()!!.refreshToken) is SignedJWT) shouldBe true
             }
 
-            And("The user tries to acces the get account endpoint")
+            And("The user tries to access the get account endpoint")
             {
-                val accessToken = bearerResponse.body()!!.accessToken
-                val requestWithAuthorization = HttpRequest.GET<Any>("/auth/4")
+                accessToken = bearerResponse.body()!!.accessToken
+                val requestWithAuthorization = HttpRequest.GET<Any>("/auth/$accountId")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 val accountResponse: HttpResponse<AccountResponse> = client
                         .toBlocking()
@@ -81,10 +97,21 @@ class AuthorizationSpec : BehaviorSpec({
                 Then("The user should can access")
                 {
                     accountResponse.status shouldBe HttpStatus.OK
-                    accountResponse.body()!!.userName shouldBe "blacksuntest"
+                    accountResponse.body()!!.userName shouldBe USER
+                }
+            }
+
+            And("The user wants to delete his account")
+            {
+                val request: MutableHttpRequest<Any> = HttpRequest.DELETE<Any>("/auth/delete/$accountId")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+                val response = client.toBlocking().exchange(request, Argument.STRING)
+                Then("His data should be delted")
+                {
+                    response.status shouldBe HttpStatus.OK
                 }
             }
         }
+
     }
 })
-

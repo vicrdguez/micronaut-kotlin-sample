@@ -7,10 +7,17 @@ micronaut:
   security:
     enabled: true
     endpoints:
+      beans:
+        enabled: true
+        sensitive: true
+      info:
+        enabled: true
+        sensitive: false
       login:
         enabled: true
       oauth:
         enabled: true
+        path: "/auth/access_token"
     token:
       jwt:
         enabled: true
