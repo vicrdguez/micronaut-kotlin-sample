@@ -36,7 +36,6 @@ class AuthorizationSpec : BehaviorSpec({
         {
             val request = HttpRequest.POST("/auth/register", AccountRequest(USER, EMAIL, PASS))
             val response = client.toBlocking().exchange(request, AccountResponse::class.java)
-
             accountId = response.body()?.id
 
             Then("The register should succeed")

@@ -1,8 +1,9 @@
-package com.blacksun.auth.service
+package com.blacksun.auth.service.Implementation
 
 import com.blacksun.auth.entity.Account
 import com.blacksun.auth.enum.HashAlgorithm
 import com.blacksun.auth.repository.IAccountRepository
+import com.blacksun.auth.service.IAccountService
 import com.blacksun.auth.utils.PasswordEncoder
 import com.blacksun.auth.web.dto.AccountRequest
 import io.micronaut.security.authentication.*
@@ -20,7 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class AccountService(
         @Inject private val repository: IAccountRepository
-) : AuthenticationProvider
+) : AuthenticationProvider, IAccountService
 {
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse>
     {
@@ -41,7 +42,7 @@ class AccountService(
                 .orElse(Flowable.just(AuthenticationFailed()))
     }
 
-    fun create(account: AccountRequest): Account
+    override fun register(account: AccountRequest): Account
     {
         val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
         val salt: String = encoder.generateSalt()
@@ -51,28 +52,28 @@ class AccountService(
         )
     }
 
-    fun read(id: Long): Optional<Account>
+    override fun read(id: Long): Optional<Account>
     {
         return repository.findById(id)
     }
 
-    fun update(account: Account): Account
+    override fun update(account: Account): Account
     {
         return repository.update(account)
     }
 
-    fun delete(id: Long)
+    override fun delete(id: Long)
     {
         return repository.deleteById(id)
     }
 
-    fun sendPasswordResetEmail(email: String): Boolean
+    override fun sendPasswordResetEmail(email: String): Boolean
     {
         //TODO(add condition fot exist function and call mail client when true)
         return repository.existsByEmail(email)
     }
 
-    fun updatePassword(id: Long, password: String)
+    override fun updatePassword(id: Long, password: String)
     {
         val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
         val salt: String = encoder.generateSalt()

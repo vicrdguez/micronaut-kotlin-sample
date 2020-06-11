@@ -1,19 +1,20 @@
 package com.blacksun.auth.web.controller
 
-import com.blacksun.auth.service.AccountService
+import com.blacksun.auth.service.IAccountService
+import com.blacksun.auth.service.Implementation.AccountService
 import com.blacksun.auth.utils.logger
 import com.blacksun.auth.web.dto.AccountRequest
 import com.blacksun.auth.web.dto.AccountResponse
+import io.micronaut.core.util.CollectionUtils
 import io.micronaut.http.HttpRequest
 import javax.inject.Inject
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
-import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import org.hibernate.exception.ConstraintViolationException
-import java.lang.Exception
+import java.security.Principal
+import java.util.*
 import javax.persistence.PersistenceException
 
 /**
@@ -24,7 +25,7 @@ import javax.persistence.PersistenceException
 @Controller("/auth")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class AccountController(
-        @Inject private val service: AccountService
+        @Inject private val service: IAccountService
 )
 {
     val logger = logger()
@@ -34,7 +35,7 @@ class AccountController(
     fun createAccount(@Body account: AccountRequest): HttpResponse<AccountResponse>
     {
         logger.info("the received request is [{}]", account)
-        val result = service.create(account)
+        val result = service.register(account)
 
         return HttpResponse.created(AccountResponse(result.id, result.userName))
     }
@@ -46,6 +47,16 @@ class AccountController(
                 .read(id)
                 .map { account -> HttpResponse.ok(AccountResponse(account.id, account.userName)) }
                 .orElse(HttpResponse.noContent())
+    }
+
+    @Get("/accountInfo")
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    fun getAccountInfo(principal: Principal?): MutableMap<Any?, Any?>?
+    {
+        if(principal == null){
+            return Collections.singletonMap("isLoggedIn", false)
+        }
+        return CollectionUtils.mapOf("isLoggedIn", true, "userName", principal.name)
     }
 
     @Delete("/delete/{id}")
@@ -70,12 +81,13 @@ class AccountController(
     }
 
     @Error
-    fun onRegisterError(request: HttpRequest<AccountRequest>, exception: ConstraintViolationException): HttpResponse<String>
+    fun onRegisterError(request: HttpRequest<AccountRequest>, exception: PersistenceException): HttpResponse<String>
     {
-        return when (exception.constraintName)
+        val innerException = exception.cause as ConstraintViolationException
+        return when (innerException.constraintName)
         {
-            "account_email_key" -> HttpResponse.badRequest("The email already exists [${request.body.get().email}]")
-            "account_username_key" -> HttpResponse.badRequest("The username already exists [${request.body.get().userName}]")
+            "account_email_key" -> HttpResponse.badRequest("The email already exists: ${request.body.get().email}")
+            "account_username_key" -> HttpResponse.badRequest("The username already exists: ${request.body.get().userName}")
             else -> HttpResponse.unprocessableEntity()
         }
     }
