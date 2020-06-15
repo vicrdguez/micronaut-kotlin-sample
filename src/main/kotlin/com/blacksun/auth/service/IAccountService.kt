@@ -27,4 +27,5 @@ interface IAccountService
 
     fun updatePassword(id: Long, password: String)
 
+    fun updatePassword(id: Long, oldPassword: String, newPassword:String) : Boolean
 }

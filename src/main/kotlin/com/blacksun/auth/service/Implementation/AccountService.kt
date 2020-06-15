@@ -81,4 +81,20 @@ class AccountService(
 
         return repository.update(id, encodedPassword, salt)
     }
+
+    override fun updatePassword(id: Long, oldPassword: String, newPassword: String): Boolean
+    {
+        val account: Account? = repository.findById(id).orElse(null)
+        if(account != null)
+        {
+            val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
+            if(account.password == encoder.hash(oldPassword, account.salt))
+            {
+                updatePassword(id, newPassword)
+                return true
+            }
+            return false
+        }
+        return false
+    }
 }
