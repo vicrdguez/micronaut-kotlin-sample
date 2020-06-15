@@ -1,5 +1,10 @@
 micronaut:
-  http.client.exception-on-error-status: false
+  http:
+    client.exception-on-error-status: false
+    services:
+      mail-api:
+        urls:
+          - "http://localhost:8081"
   application:
     name: authApi
   server:

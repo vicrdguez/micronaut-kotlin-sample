@@ -66,7 +66,7 @@ class AccountController(
         return HttpResponse.ok("Account deleted successfully")
     }
 
-    @Post("/password/reset/email")
+    @Post("/password/reset/email/{email}")
     @Secured(SecurityRule.IS_ANONYMOUS)
     fun createResetRequest(email: String): HttpResponse<Boolean>?
     {
@@ -74,14 +74,15 @@ class AccountController(
     }
 
     @Post("/password/reset")
-    @Secured(SecurityRule.IS_ANONYMOUS)
-    fun resetPassword(id: Long, oldPassword: String, newPassword: String): HttpResponse<Boolean>
+
+    fun changePassword(id: Long, oldPassword: String, newPassword: String): HttpResponse<Boolean>
     {
         return HttpResponse.ok(service.updatePassword(id, oldPassword, newPassword))
     }
 
     @Post("/password/change")
-    fun changePassword(id: Long, password: String): HttpResponse<Unit>?
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    fun resetPassword(id: Long, password: String): HttpResponse<Unit>?
     {
         return HttpResponse.ok(service.updatePassword(id, password))
     }

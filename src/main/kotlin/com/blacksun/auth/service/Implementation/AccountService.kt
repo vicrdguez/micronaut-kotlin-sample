@@ -1,11 +1,13 @@
 package com.blacksun.auth.service.Implementation
 
 import com.blacksun.auth.entity.Account
-import com.blacksun.auth.enum.HashAlgorithm
+import com.blacksun.auth.enums.HashAlgorithm
 import com.blacksun.auth.repository.IAccountRepository
 import com.blacksun.auth.service.IAccountService
 import com.blacksun.auth.utils.PasswordEncoder
+import com.blacksun.auth.web.client.IMailClient
 import com.blacksun.auth.web.dto.AccountRequest
+import io.micronaut.http.HttpStatus
 import io.micronaut.security.authentication.*
 import io.reactivex.Flowable
 import org.reactivestreams.Publisher
@@ -20,23 +22,22 @@ import javax.inject.Singleton
  */
 @Singleton
 class AccountService(
-        @Inject private val repository: IAccountRepository
+        @Inject private val repository: IAccountRepository,
+        @Inject private val mailClient: IMailClient
 ) : AuthenticationProvider, IAccountService
 {
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse>
     {
         return repository.findByUserName(authenticationRequest?.identity.toString())
                 .filter()
-                {
-                    account ->
-                        val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
-                        account.password == encoder.hash(authenticationRequest?.secret.toString(), account.salt)
+                { account ->
+                    val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
+                    account.password == encoder.hash(authenticationRequest?.secret.toString(), account.salt)
                 }
                 .map()
-                {
-                    account ->
-                        val authenticationResponse = UserDetails(account.userName, Collections.emptyList()) as AuthenticationResponse
-                        authenticationResponse
+                { account ->
+                    val authenticationResponse = UserDetails(account.userName, Collections.emptyList()) as AuthenticationResponse
+                    authenticationResponse
                 }
                 .map { account -> Flowable.just(account) }
                 .orElse(Flowable.just(AuthenticationFailed()))
@@ -47,9 +48,13 @@ class AccountService(
         val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
         val salt: String = encoder.generateSalt()
         val encodedPassword: String = encoder.hash(account.password)
-        return repository.save(
+
+        val result = repository.save(
                 Account(null, account.userName, account.email, encodedPassword, null, null, salt)
         )
+        sendValidationEmail(account.email)
+
+        return result
     }
 
     override fun read(id: Long): Optional<Account>
@@ -69,8 +74,24 @@ class AccountService(
 
     override fun sendPasswordResetEmail(email: String): Boolean
     {
-        //TODO(add condition fot exist function and call mail client when true)
-        return repository.existsByEmail(email)
+
+        if (repository.existsByEmail(email))
+        {
+            val response = mailClient.sendPasswordResetEmail(email)
+            return response.status == HttpStatus.OK
+        }
+
+        return false
+    }
+
+    override fun sendValidationEmail(email: String): Boolean
+    {
+        if (repository.existsByEmail(email))
+        {
+            val response = mailClient.sendValidationEmail(email)
+            return response.status == HttpStatus.OK
+        }
+        return false
     }
 
     override fun updatePassword(id: Long, password: String)
@@ -85,10 +106,10 @@ class AccountService(
     override fun updatePassword(id: Long, oldPassword: String, newPassword: String): Boolean
     {
         val account: Account? = repository.findById(id).orElse(null)
-        if(account != null)
+        if (account != null)
         {
             val encoder = PasswordEncoder(HashAlgorithm.PBKDF2)
-            if(account.password == encoder.hash(oldPassword, account.salt))
+            if (account.password == encoder.hash(oldPassword, account.salt))
             {
                 updatePassword(id, newPassword)
                 return true

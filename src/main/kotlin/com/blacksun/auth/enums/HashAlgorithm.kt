@@ -1,4 +1,4 @@
-package com.blacksun.auth.enum
+package com.blacksun.auth.enums
 
 /**
  * Contains constant values for hashing algorithms
