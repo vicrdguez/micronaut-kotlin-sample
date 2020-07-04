@@ -1,12 +1,11 @@
 package com.blacksun.auth.utils
 
-import com.blacksun.auth.enum.HashAlgorithm
+import com.blacksun.auth.enums.HashAlgorithm
 import java.security.SecureRandom
 import java.security.spec.KeySpec
 import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
-import javax.inject.Singleton
 
 const val ITERATIONS: Int = 10000
 const val KEY_LENGTH: Int = 512

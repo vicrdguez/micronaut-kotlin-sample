@@ -10,7 +10,7 @@ plugins {
 
 version "1.0.0-SNAPSHOT"
 group "com.blacksun.auth"
-
+mainClassName = "com.blacksun.auth.Application"
 
 repositories {
     jcenter()
