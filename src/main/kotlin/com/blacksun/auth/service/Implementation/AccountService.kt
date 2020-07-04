@@ -23,6 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class AccountService(
         @Inject private val repository: IAccountRepository,
+        @Inject private val accountTokenService: AccountTokenService,
         @Inject private val mailClient: IMailClient
 ) : AuthenticationProvider, IAccountService
 {
@@ -52,7 +53,7 @@ class AccountService(
         val result = repository.save(
                 Account(null, account.userName, account.email, encodedPassword, null, null, salt)
         )
-        sendValidationEmail(account.email)
+        result.id?.let { sendValidationEmail(account.email, it) }
 
         return result
     }
@@ -74,22 +75,30 @@ class AccountService(
 
     override fun sendPasswordResetEmail(email: String): Boolean
     {
-
-        if (repository.existsByEmail(email))
+        val account = repository.findByEmail(email)
+        if (account.isPresent)
         {
             val response = mailClient.sendPasswordResetEmail(email)
-            return response.status == HttpStatus.OK
+            if(response.status == HttpStatus.OK){
+                accountTokenService.save(account.get().id!!, response.body()!!.token!!)
+
+                return true
+            }
         }
 
         return false
     }
 
-    override fun sendValidationEmail(email: String): Boolean
+    override fun sendValidationEmail(email: String, accountId: Long): Boolean
     {
         if (repository.existsByEmail(email))
         {
             val response = mailClient.sendValidationEmail(email)
-            return response.status == HttpStatus.OK
+            if(response.status == HttpStatus.OK){
+                accountTokenService.save(accountId, response.body()!!.token!!)
+
+                return true
+            }
         }
         return false
     }

@@ -19,5 +19,6 @@ import java.util.*
 interface IAccountRepository : CrudRepository<Account, Long>{
     fun findByUserName(userName : String) : Optional<Account>
     fun existsByEmail(email: String): Boolean
+    fun findByEmail(emial: String): Optional<Account>
     fun update(@Id id: Long?, password: String, salt: String)
 }

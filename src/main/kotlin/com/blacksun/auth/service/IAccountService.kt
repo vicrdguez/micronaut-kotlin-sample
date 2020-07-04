@@ -17,7 +17,7 @@ interface IAccountService
 
     fun sendPasswordResetEmail(email: String): Boolean
 
-    fun sendValidationEmail(email:String): Boolean
+    fun sendValidationEmail(email:String, accountId: Long): Boolean
 
     fun updatePassword(id: Long, password:String)
 
