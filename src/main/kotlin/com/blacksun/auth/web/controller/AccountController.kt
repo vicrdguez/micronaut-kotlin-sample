@@ -74,7 +74,6 @@ class AccountController(
     }
 
     @Post("/password/reset")
-
     fun changePassword(id: Long, oldPassword: String, newPassword: String): HttpResponse<Boolean>
     {
         return HttpResponse.ok(service.updatePassword(id, oldPassword, newPassword))
